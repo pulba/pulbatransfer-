@@ -1,0 +1,20 @@
+{
+  "$schema": "node_modules/wrangler/config-schema.json",
+  "name": "pulba-transfer",
+  "main": "./dist/_worker.js/index.js",
+  "compatibility_date": "2026-10-13",
+  "compatibility_flags": ["nodejs_compat"],
+  "assets": {
+    "directory": "./dist",
+    "binding": "ASSETS"
+  },
+  "r2_buckets": [
+    {
+      "binding": "FILES",
+      "bucket_name": "pulba-transfer-files"
+    }
+  ],
+  "vars": {
+    "FILE_RETENTION_DAYS": "7"
+  }
+}

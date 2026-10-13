@@ -1,0 +1,423 @@
+---
+import '../styles/global.css';
+const title = "Pulba Transfer";
+---
+<!doctype html>
+<html lang="id">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="theme-color" content="#101114" />
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <title>{title}</title>
+    <meta name="description" content="Transfer file desain dari laptop ke HP tanpa kompresi." />
+    <style is:global>
+      :root{color-scheme:dark;--bg:#0a0b0d;--panel:#14161a;--line:#24272e;--muted:#8a919e;--text:#f5f6fa;--accent:#c5f36a;--accent-ink:#17200b;--error:#ff5a65;--success:#c5f36a}
+      *{box-sizing:border-box}
+      body{margin:0;background:radial-gradient(circle at 0% 0%,#1a2210 0,transparent 40%),var(--bg);color:var(--text);font:15px/1.6 Inter,ui-sans-serif,system-ui,-apple-system,sans-serif;letter-spacing:-0.01em}
+
+      .wrap{max-width:1100px;margin:auto;padding:40px 24px 80px}
+      .top{display:flex;justify-content:space-between;align-items:center;margin-bottom:60px}
+      .brand{display:flex;align-items:center;gap:12px;font-weight:900;font-size:18px;letter-spacing:-0.04em}
+      .logo{display:grid;place-items:center;width:36px;height:36px;background:var(--accent);color:var(--accent-ink);border-radius:10px;font-size:20px}
+
+      .hero{margin-bottom:48px;max-width:600px}
+      .badge{display:inline-block;padding:4px 12px;background:rgba(197,243,106,0.1);color:var(--accent);border-radius:99px;font-size:12px;font-weight:700;margin-bottom:16px;text-transform:uppercase;letter-spacing:0.05em}
+      .hero h1{font-size:clamp(40px,8vw,56px);line-height:1.1;letter-spacing:-0.05em;margin:0 0 16px}
+      .hero p{color:var(--muted);font-size:18px;margin:0}
+
+      .layout{display:flex;flex-direction:column;gap:32px}
+      .panel{background:var(--panel);border:1px solid var(--line);border-radius:24px;padding:28px;position:relative}
+
+      /* Compact Upload Panel */
+      .upload-section{max-width:700px;margin:0 auto;width:100%}
+      .drop{border:2px dashed var(--line);border-radius:20px;padding:32px 20px;text-align:center;transition:all 0.2s;background:rgba(255,255,255,0.01);cursor:pointer}
+      .drop:hover, .drop.over{border-color:var(--accent);background:rgba(197,243,106,0.03)}
+      .upload-icon{width:48px;height:48px;background:var(--line);color:var(--accent);border-radius:14px;display:grid;place-items:center;margin:0 auto 16px;font-size:20px}
+      .drop strong{display:block;font-size:16px;margin-bottom:4px}
+      .drop p{color:var(--muted);font-size:13px;margin:0 0 16px}
+
+      /* File List Grid */
+      .files-grid {
+        display: grid !important;
+        grid-template-columns: repeat(auto-fill, minmax(180px, 1fr)) !important;
+        gap: 20px !important;
+        margin-top: 24px !important;
+      }
+
+      .file-card {
+        background: var(--panel) !important;
+        border: 1px solid var(--line) !important;
+        border-radius: 16px !important;
+        overflow: hidden !important;
+        display: flex !important;
+        flex-direction: column !important;
+        transition: transform 0.2s, border-color 0.2s !important;
+      }
+
+      .file-card:hover {
+        border-color: var(--accent) !important;
+        transform: translateY(-4px) !important;
+      }
+
+      .file-info {
+        padding: 12px !important;
+        display: flex !important;
+        flex-direction: column !important;
+        gap: 8px !important;
+      }
+
+      .file-name {
+        font-size: 8px !important;
+        font-weight: 700 !important;
+        color: var(--text) !important;
+        white-space: nowrap !important;
+        overflow: hidden !important;
+        text-overflow: ellipsis !important;
+        margin: 0 !important;
+        display: block !important;
+        max-width: 100% !important;
+      }
+
+      .file-details-bottom {
+        display: flex !important;
+        justify-content: space-between !important;
+        align-items: center !important;
+        margin-top: 4px !important;
+      }
+
+      .file-meta {
+        font-size: 10px !important;
+        color: var(--muted) !important;
+        font-weight: 800 !important;
+        text-transform: uppercase !important;
+      }
+
+      .file-actions {
+        display: flex !important;
+        gap: 4px !important;
+        background: var(--line) !important;
+        padding: 4px !important;
+        border-radius: 20px !important;
+      }
+
+      .btn-action {
+        width: 28px !important;
+        height: 28px !important;
+        border-radius: 50% !important;
+        display: grid !important;
+        place-items: center !important;
+        border: none !important;
+        cursor: pointer !important;
+        font-size: 14px !important;
+        transition: all 0.2s !important;
+      }
+
+      .btn-download {
+        background: var(--accent) !important;
+        color: var(--accent-ink) !important;
+      }
+
+      .btn-download:hover {
+        transform: scale(1.1) !important;
+        filter: brightness(1.1) !important;
+      }
+
+      .btn-delete {
+        background: rgba(255, 90, 101, 0.1) !important;
+        color: var(--error) !important;
+      }
+
+      .btn-delete:hover {
+        background: var(--error) !important;
+        color: white !important;
+        transform: scale(1.1) !important;
+      }
+
+      @media(max-width:640px){
+        .files-grid{grid-template-columns:repeat(2, 1fr);gap:12px}
+        .file-actions{opacity:1} /* Always show on mobile */
+        .hero h1{font-size:36px}
+      }
+
+      /* QR Section */
+      .qr-panel{margin-top:24px;padding:20px;background:rgba(197,243,106,0.03);border:1px solid rgba(197,243,106,0.1);border-radius:20px;display:none}
+      .qr-flex{display:flex;gap:20px;align-items:center}
+      #qrcode{background:white;padding:8px;border-radius:12px;width:100px;height:100px}
+      .qr-text{flex:1}
+      .qr-text h3{font-size:15px;margin:0 0 4px}
+      .qr-text p{font-size:13px;color:var(--muted);margin:0}
+
+      @media(max-width:850px){
+        .layout{grid-template-columns:1fr}
+        .hero{text-align:center;margin:0 auto 40px}
+        .top{margin-bottom:40px}
+      }
+
+      /* Buttons & Inputs */
+      button{cursor:pointer;font-family:inherit;transition:all 0.2s}
+      .primary{background:var(--accent);color:var(--accent-ink);border:none;padding:12px 24px;border-radius:12px;font-weight:700;font-size:15px}
+      .primary:hover{transform:translateY(-2px);filter:brightness(1.1)}
+      .secondary{background:var(--line);color:var(--text);border:1px solid var(--line);padding:10px 20px;border-radius:12px;font-weight:600;font-size:14px}
+      .secondary:hover{background:rgba(255,255,255,0.05)}
+
+      .fileinput{display:none}
+
+      .access-box{margin-top:24px;padding-top:24px;border-top:1px solid var(--line)}
+      .input-group{display:flex;gap:8px;max-width:400px;margin:0 auto}
+      .input-group input{flex:1;background:var(--bg);border:1px solid var(--line);border-radius:12px;padding:10px 16px;color:var(--text);font-size:14px;outline:none;transition:border-color 0.2s}
+      .input-group input:focus{border-color:var(--accent)}
+
+      .status-msg{margin-top:16px;font-size:13px;min-height:20px}
+      .status-msg.error{color:var(--error)}
+      .status-msg.success{color:var(--success)}
+    </style>
+  </head>
+  <body>
+    <main class="wrap">
+      <header class="top">
+        <div class="brand"><div class="logo">↗</div><span>PULBA TRANSFER</span></div>
+        <div id="connIndicator" class="conn-status"><div class="dot"></div><span>Terputus</span></div>
+      </header>
+
+
+      <section class="layout">
+        <div class="upload-section">
+          <div class="panel">
+            <div class="drop" id="dropArea">
+              <div class="upload-icon">↑</div>
+              <strong>Upload desain baru</strong>
+              <p>Tarik file ke sini atau klik tombol di bawah</p>
+              <button class="primary" id="btnBrowse">Pilih File</button>
+              <input type="file" id="filePicker" class="fileinput" multiple />
+            </div>
+            <div id="uploadStatus" class="status-msg" style="text-align:center"></div>
+
+            <div class="access-box">
+              <div class="input-group">
+                <input type="password" id="accessCode" placeholder="Masukkan kode akses..." autocomplete="current-password" />
+                <button class="secondary" id="btnConnect">Hubungkan</button>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="gallery-section">
+          <div class="gallery-head">
+            <div>
+              <h2>Galeri desain</h2>
+              <p class="sub" id="fileCount">Hubungkan untuk melihat file</p>
+            </div>
+            <button class="secondary btn-icon" id="btnRefresh" title="Refresh">↻</button>
+          </div>
+
+          <div id="fileList" class="files-grid">
+            <!-- Grid items will be injected here -->
+          </div>
+        </div>
+      </section>
+    </main>
+
+    <script>
+      const $ = (id) => document.getElementById(id);
+      let accessCode = localStorage.getItem("pulba_access_code") || "";
+
+      // Sync input with localStorage on load
+      if(accessCode) {
+        $("accessCode").value = accessCode;
+        loadFiles();
+      }
+
+      function updateConnUI(connected) {
+        const indicator = $("connIndicator");
+        if (indicator) {
+          indicator.querySelector(".dot").className = "dot" + (connected ? " active" : "");
+          indicator.querySelector("span").textContent = connected ? "Terhubung" : "Terputus";
+        }
+      }
+
+      async function api(url, options={}) {
+        const headers = new Headers(options.headers || {});
+        headers.set("x-access-code", accessCode);
+        return fetch(url, {...options, headers});
+      }
+
+      $("btnBrowse").onclick = () => $("filePicker").click();
+      $("filePicker").onchange = (e) => handleUpload([...e.target.files]);
+
+      $("dropArea").ondragover = (e) => { e.preventDefault(); $("dropArea").classList.add("over"); };
+      $("dropArea").ondragleave = () => $("dropArea").classList.remove("over");
+      $("dropArea").ondrop = (e) => { e.preventDefault(); $("dropArea").classList.remove("over"); handleUpload([...e.dataTransfer.files]); };
+
+      $("btnConnect").onclick = () => {
+        accessCode = $("accessCode").value.trim();
+        if(!accessCode) {
+          showStatus("uploadStatus", "Masukkan kode akses.", "error");
+          return;
+        }
+        localStorage.setItem("pulba_access_code", accessCode);
+        loadFiles();
+      };
+
+      $("accessCode").onkeydown = (e) => { if(e.key === "Enter") $("btnConnect").click(); };
+      $("btnRefresh").onclick = loadFiles;
+
+      async function handleUpload(files) {
+        if(!accessCode) { showStatus("uploadStatus", "Masukkan kode akses dulu.", "error"); return; }
+        showStatus("uploadStatus", `Menyiapkan ${files.length} file...`);
+
+        for(const file of files) {
+          if(file.size > 100*1024*1024) { showStatus("uploadStatus", `${file.name} terlalu besar (>100MB)`, "error"); continue; }
+          showStatus("uploadStatus", `Mengunggah ${file.name}...`);
+          try {
+            const res = await api("/api/files/", {
+              method: "POST",
+              headers: {
+                "content-type": file.type || "application/octet-stream",
+                "x-file-name": encodeURIComponent(file.name)
+              },
+              body: file
+            });
+            if(!res.ok) {
+              const err = await res.json();
+              throw new Error(err.error || "Gagal upload");
+            }
+            showStatus("uploadStatus", "Berhasil diunggah!", "success");
+          } catch(e) {
+            console.error("Upload error:", e);
+            showStatus("uploadStatus", e.message, "error");
+          }
+        }
+        loadFiles();
+      }
+
+      async function loadFiles() {
+        if(!accessCode) return;
+        try {
+          const res = await api("/api/files/");
+          const data = await res.json();
+
+          if(!res.ok) {
+            updateConnUI(false);
+            if(res.status === 401) {
+              showStatus("uploadStatus", "Kode akses salah.", "error");
+              $("fileCount").textContent = "Kode akses salah";
+            }
+            return;
+          }
+
+          // Render files first
+          renderFiles(data.files);
+          $("fileCount").textContent = `${data.files.length} file tersimpan`;
+
+          // Then update connection UI (QR, etc)
+          updateConnUI(true);
+          showStatus("uploadStatus", "");
+        } catch(e) {
+          console.error("Load error:", e);
+          updateConnUI(false);
+          showStatus("uploadStatus", "Gagal memuat file.", "error");
+        }
+      }
+
+      function renderFiles(files) {
+        const container = $("fileList");
+        if(!files || !files.length) {
+          container.innerHTML = '<div style="grid-column:1/-1; text-align:center; padding:80px 20px; color:var(--muted); background:rgba(255,255,255,0.02); border-radius:24px; border:1px dashed var(--line)"><p>Belum ada file yang diunggah.</p></div>';
+          return;
+        }
+        container.innerHTML = "";
+        files.forEach(f => {
+          const card = document.createElement("article");
+          card.className = "file-card overflow-hidden";
+
+          const ext = f.name.includes('.') ? f.name.split('.').pop().toUpperCase() : 'FILE';
+          const isImg = f.type.startsWith("image/") || ['JPG','JPEG','PNG','WEBP','GIF','AVIF'].includes(ext);
+
+          // Excerpt filename: truncated if too long
+          const displayName = f.name.length > 20
+            ? f.name.substring(0, 10) + '...' + f.name.slice(-7)
+            : f.name;
+
+          card.innerHTML = `
+            <div class="file-thumb aspect-video overflow-hidden">
+              <div class="preview-container" id="preview-${f.key}">
+                <div class="icon-placeholder">${ext === 'PDF' ? '📕' : ext === 'ZIP' || ext === 'RAR' ? '📦' : '📄'}</div>
+              </div>
+            </div>
+            <div class="file-info">
+              <h3 class="file-name" title="${f.name}">${displayName}</h3>
+              <div class="file-details-bottom">
+                <span class="file-meta">${ext} • ${(f.size/1024/1024).toFixed(2)} MB</span>
+                <div class="file-actions">
+                  <button class="btn-action btn-download" onclick="downloadFile('${f.key}', '${f.name.replace(/'/g, "\\'")}')" title="Download">↓</button>
+                  <button class="btn-action btn-delete" onclick="deleteFile('${f.key}', '${f.name.replace(/'/g, "\\'")}')" title="Hapus">×</button>
+                </div>
+              </div>
+            </div>
+          `;
+          container.appendChild(card);
+
+          // Coba muat thumbnail jika bukan format arsip/pdf yang pasti bukan gambar
+          const nonImages = ['PDF', 'ZIP', 'RAR', '7Z', 'TAR'];
+          if (!nonImages.includes(ext)) {
+            loadThumbnail(f.key);
+          }
+        });
+      }
+
+      async function loadThumbnail(key) {
+        try {
+          const res = await api(`/api/files/${key}`);
+          if (!res.ok) return;
+
+          // Cek apakah response benar-benar gambar
+          const contentType = res.headers.get("content-type") || "";
+          if (!contentType.startsWith("image/") && !key.includes("-")) {
+            // Jika bukan image dan bukan UUID (file lama), abaikan
+            return;
+          }
+
+          const blob = await res.blob();
+          const url = URL.createObjectURL(blob);
+          const preview = $(`preview-${key}`);
+          if (preview) {
+            preview.innerHTML = `<img src="${url}" alt="thumbnail" loading="lazy" />`;
+            preview.classList.remove("icon-placeholder");
+          }
+        } catch (e) {
+          console.error("Thumbnail error:", e);
+        }
+      }
+
+      window.downloadFile = async (key, name) => {
+        try {
+          const res = await api(`/api/files/${key}`);
+          if(!res.ok) throw new Error("Gagal unduh");
+          const blob = await res.blob();
+          const url = URL.createObjectURL(blob);
+          const a = document.createElement("a");
+          a.href = url; a.download = name; a.click();
+          URL.revokeObjectURL(url);
+        } catch(e) { alert("Gagal unduh: " + e.message); }
+      };
+
+      window.deleteFile = async (key, name) => {
+        if(!confirm(`Hapus ${name}?`)) return;
+        try {
+          const res = await api(`/api/files/${key}`, { method: "DELETE" });
+          if(!res.ok) throw new Error("Gagal hapus");
+          loadFiles();
+        } catch(e) { alert(e.message); }
+      };
+
+      function showStatus(id, msg, type="") {
+        const el = $(id);
+        if (el) {
+          el.textContent = msg;
+          el.className = "status-msg " + type;
+        }
+      }
+    </script>
+  </body>
+</html>
