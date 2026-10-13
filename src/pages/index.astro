@@ -165,6 +165,10 @@ const title = "Pulba Transfer";
 
       .access-box{margin-top:24px;padding-top:24px;border-top:1px solid var(--line)}
       .input-group{display:flex;gap:8px;max-width:400px;margin:0 auto}
+      @media(max-width:480px){
+        .input-group{flex-direction:column}
+        .input-group button{width:100%}
+      }
       .input-group input{flex:1;background:var(--bg);border:1px solid var(--line);border-radius:12px;padding:10px 16px;color:var(--text);font-size:14px;outline:none;transition:border-color 0.2s}
       .input-group input:focus{border-color:var(--accent)}
 
